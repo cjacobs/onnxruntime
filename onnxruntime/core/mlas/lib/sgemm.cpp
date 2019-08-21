@@ -1309,3 +1309,65 @@ Return Value:
         MlasSgemmOperation(TransA, TransB, M, N, K, alpha, A, lda, B, ldb, beta, C, ldc);
     }
 }
+
+void
+MLASCALL
+MlasSgemmSingleThreaded(
+    CBLAS_TRANSPOSE TransA,
+    CBLAS_TRANSPOSE TransB,
+    size_t M,
+    size_t N,
+    size_t K,
+    float alpha,
+    const float* A,
+    size_t lda,
+    const float* B,
+    size_t ldb,
+    float beta,
+    float* C,
+    size_t ldc
+    )
+/*++
+
+Routine Description:
+
+    This routine implements the single precision matrix/matrix multiply
+    operation (SGEMM).
+
+Arguments:
+
+    TransA - Supplies the transpose operation for matrix A.
+
+    TransB - Supplies the transpose operation for matrix B.
+
+    M - Supplies the number of rows of matrix A and matrix C.
+
+    N - Supplies the number of columns of matrix B and matrix C.
+
+    K - Supplies the number of columns of matrix A and the number of rows of
+        matrix B.
+
+    alpha - Supplies the scaler alpha multiplier (see SGEMM definition).
+
+    A - Supplies the address of matrix A.
+
+    lda - Supplies the first dimension of matrix A.
+
+    B - Supplies the address of matrix B.
+
+    ldb - Supplies the first dimension of matrix B.
+
+    beta - Supplies the scaler beta multiplier (see SGEMM definition).
+
+    C - Supplies the address of matrix C.
+
+    ldc - Supplies the first dimension of matrix C.
+
+Return Value:
+
+    None.
+
+--*/
+{
+    MlasSgemmOperation(TransA, TransB, M, N, K, alpha, A, lda, B, ldb, beta, C, ldc);
+}

@@ -228,25 +228,46 @@ private:
         size_t ldc
         )
     {
+        using clock_t = std::chrono::high_resolution_clock;
+        using second_t = std::chrono::duration<double, std::ratio<1> >;
+
         std::fill_n(C, M * N, -0.5f);
         std::fill_n(CReference, M * N, -0.5f);
 
+        //
+        // First, single-threaded version
+        //
+        for(int i = 0; i < warmupCount; ++i)
+        {
+            MlasSgemmSingleThreaded(TransA, TransB, M, N, K, alpha, A, lda, B, ldb, beta, C, ldc);
+        }
+
+        std::chrono::time_point<clock_t> start = clock_t::now();
+        for(int i = 0; i < numIter; ++i)
+        {
+            MlasSgemmSingleThreaded(TransA, TransB, M, N, K, alpha, A, lda, B, ldb, beta, C, ldc);
+        }
+        auto elapsed = std::chrono::duration_cast<second_t>(clock_t::now() - start).count();
+        auto timePerIter = elapsed / numIter;
+
+        printf("single_threaded_time=%f, iter=%d, time_per_iter=%f\n", elapsed, numIter, timePerIter);
+
+        //
+        // Next, multithreaded version
         for(int i = 0; i < warmupCount; ++i)
         {
             MlasSgemm(TransA, TransB, M, N, K, alpha, A, lda, B, ldb, beta, C, ldc, nullptr);
         }
 
-        using clock_t = std::chrono::high_resolution_clock;
-        using second_t = std::chrono::duration<double, std::ratio<1> >;
-        std::chrono::time_point<clock_t> start = clock_t::now();
+        start = clock_t::now();
         for(int i = 0; i < numIter; ++i)
         {
             MlasSgemm(TransA, TransB, M, N, K, alpha, A, lda, B, ldb, beta, C, ldc, nullptr);
         }
-        auto elapsed = std::chrono::duration_cast<second_t>(clock_t::now() - start).count();
-        auto timePerIter = elapsed / numIter;
+        elapsed = std::chrono::duration_cast<second_t>(clock_t::now() - start).count();
+        timePerIter = elapsed / numIter;
 
-        printf("time=%f, iter=%d, time_per_iter=%f\n", elapsed, numIter, timePerIter);
+        printf("multi_threaded_time=%f, iter=%d, time_per_iter=%f\n", elapsed, numIter, timePerIter);
 
         // verify
         ReferenceSgemm(TransA, TransB, M, N, K, alpha, A, lda, B, ldb, beta, CReference, ldc);
@@ -379,7 +400,7 @@ public:
         void
         ) override
     {
-        const int numIter = 1000;
+        const int numIter = 10000;
         const int warmupCount = 100;
         const int size = 256;
         Timing(numIter, warmupCount, size, size, size, 1.0f, 0.0f);

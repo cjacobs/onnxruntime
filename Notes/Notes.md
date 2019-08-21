@@ -1,6 +1,6 @@
-Notes
+# Notes
 
-
+## Basic building and running
 Building (macOS):
 
 ```
@@ -25,5 +25,3 @@ onnxruntime_mlas_test in build directory
 onnxruntime_mlas.cmake -- build info for mlas
 onnxruntime_unittests.cmake -- build info for tests
 
-
-TODO: add another unit test that spits out performance numbers
